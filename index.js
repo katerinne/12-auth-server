@@ -15,12 +15,14 @@ dbConnection();
 //Lectura y parseo del body
 app.use( express.json() );
 
+
+//CORS
+app.use(cors());
+
 //Rutas
 app.use('/api/auth', require('./routes/auth'))
 
 
-//CORS
-app.use(cors());
 
 //Directorio publico
 app.use(express.static('./public') );
