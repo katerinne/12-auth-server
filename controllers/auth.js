@@ -2,6 +2,7 @@ const { response }  = require('express');
 const Usuario = require('../models/Usuario');
 const bcrypt = require('bcryptjs');
 const { generarJWT } = require('../helpers/jwt');
+const { findById } = require('../models/Usuario');
 
 const crearUsuario = async(req, res = response) => {
    
@@ -9,11 +10,10 @@ const crearUsuario = async(req, res = response) => {
     try{
           
         // Verificar que no exite el email
-        const usuario = await Usuario.findOne({ email: email });
+        const usuario = await Usuario.findOne({ email });
 
         if ( usuario ) {
-            console.log(email);
-            return res.status(400).json({
+                return res.status(400).json({
                 ok: false,
                 msg: 'El usuario ya existe con ese email'
             });
@@ -38,6 +38,7 @@ const crearUsuario = async(req, res = response) => {
             ok: true,
             uid: dbUser.id,
             name,
+            email,
             token,
             msg: 'Usuario creado exitosamente',
             
@@ -50,12 +51,7 @@ const crearUsuario = async(req, res = response) => {
             ok: false, 
             msg: 'Por favor hable con el administrador'
         });
-    } 
-
-    return res.json({
-        ok: true,
-        msg: 'Crear usuario /new'
-    });
+    }     
 }
 
 const loginUsuario = async(req, res = response) => {
@@ -91,8 +87,9 @@ const loginUsuario = async(req, res = response) => {
             ok: true,
             uid: dbUser.id,
             name: dbUser.name,
+            email: dbUser.email,
             token,
-            msg: 'Todo correcto'
+            msg: 'Todo correcto!!'
         })
 
     }catch(error){
@@ -105,15 +102,22 @@ const loginUsuario = async(req, res = response) => {
 }
 
 const revalidarToken = async(req, res = response) => {
-    const { uid, name } = req;    
-    const token = await generarJWT(uid, name); //generando jwt nuevamente
+    const { uid } = req;    
+
+    //Leer de la base de datos
+    const dbUser = await Usuario.findById(uid);
+
+    const token = await generarJWT(uid, dbUser.name); //generando jwt nuevamente
     return res.json({
         ok: true,
         uid, 
-        name,
+        name: dbUser.name,
+        email: dbUser.email,
         token
     });
 }
+
+
 
 module.exports = {
     crearUsuario,
