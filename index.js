@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { dbConnection } = require('./db/config');
+const path = require('path');
 require('dotenv').config();
 
 console.log(process.env);
@@ -31,3 +32,9 @@ app.use(express.static('./public') );
 app.listen(process.env.PORT, () => {
     console.log(`Servidor corriendo en puerta ${ process.env.PORT }`);
 });
+
+
+//Manejar demas rutas
+app.get( '*', ( req, res ) => {
+    res.sendFile( path.resolve( __dirname, 'public/index.html' ) );
+})
